@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import UploadPanel from '../components/upload/UploadPanel'
 import MappingCanvas from '../components/mapper/MappingCanvas'
+import TemplateFillPage from './TemplateFillPage'
 import styles from './HomePage.module.css'
 
 function HomeSelection({ onSelect }) {
@@ -22,10 +23,9 @@ function HomeSelection({ onSelect }) {
         </button>
 
         <button
-          className={`${styles.card} ${styles.cardDisabled}`}
+          className={styles.card}
           onClick={() => onSelect('template-stub')}
         >
-          <span className={styles.comingSoonBadge}>即將推出</span>
           <div className={styles.cardIcon}>📋</div>
           <div className={styles.cardBody}>
             <h2 className={styles.cardTitle}>模板填入</h2>
@@ -84,7 +84,7 @@ export default function HomePage() {
         />
       )}
       {step === 'template-stub' && (
-        <TemplateStub onBack={() => setStep('home')} />
+        <TemplateFillPage onBack={() => setStep('home')} />
       )}
     </div>
   )
