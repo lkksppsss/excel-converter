@@ -1,6 +1,150 @@
+/* ── 共用：讓 page 填滿可用空間 ── */
 .page {
   flex: 1;
   min-height: 0;
   display: flex;
   flex-direction: column;
+}
+
+/* ── 首頁選擇區 ── */
+.selectionWrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+  padding: 40px 24px;
+}
+
+.heading {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 700;
+  color: #1a1a2e;
+  letter-spacing: 0.5px;
+}
+
+.cardGrid {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* ── 功能入口卡 ── */
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  width: 260px;
+  padding: 36px 28px 32px;
+  background: #ffffff;
+  border: 2px solid transparent;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+  text-align: center;
+  font-family: inherit;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 28px rgba(90, 72, 210, 0.18);
+  border-color: #5a48d2;
+}
+
+.card:active {
+  transform: translateY(-1px);
+}
+
+.cardDisabled {
+  opacity: 0.72;
+  cursor: default;
+}
+
+.cardDisabled:hover {
+  transform: none;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  border-color: transparent;
+}
+
+/* ── 即將推出 badge ── */
+.comingSoonBadge {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: #ff9500;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 20px;
+  letter-spacing: 0.3px;
+  pointer-events: none;
+}
+
+/* ── 卡片圖示 ── */
+.cardIcon {
+  font-size: 40px;
+  line-height: 1;
+}
+
+/* ── 卡片文字區 ── */
+.cardBody {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cardTitle {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a1a2e;
+}
+
+.cardDesc {
+  margin: 0;
+  font-size: 13px;
+  color: #666;
+  line-height: 1.6;
+}
+
+/* ── 模板填入 stub 頁 ── */
+.stubWrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  padding: 40px 24px;
+}
+
+.stubMessage {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 600;
+  color: #444;
+}
+
+.backButton {
+  padding: 10px 28px;
+  background: #5a48d2;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s ease;
+}
+
+.backButton:hover {
+  background: #4638b8;
 }

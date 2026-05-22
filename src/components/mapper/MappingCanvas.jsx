@@ -9,7 +9,8 @@ import {
   useEdgesState,
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
-import * as XLSX from 'xlsx'
+import ExcelJS from 'exceljs'
+import { saveAs } from 'file-saver'
 import { SourceFieldNode, TargetFieldNode } from './FieldNode'
 import styles from './MappingCanvas.module.css'
 
@@ -86,7 +87,7 @@ export default function MappingCanvas({ sourceFields, targetFields, sourceRows =
 
   const mappingCount = edges.length
 
-  function handleExport() {
+  async function handleExport() {
     const mapping = {}
     edges.forEach(edge => {
       const srcNode = nodes.find(n => n.id === edge.source)
@@ -104,10 +105,19 @@ export default function MappingCanvas({ sourceFields, targetFields, sourceRows =
       return newRow
     })
 
-    const wb = XLSX.utils.book_new()
-    const ws = XLSX.utils.json_to_sheet(outputRows.length > 0 ? outputRows : [mapping])
-    XLSX.utils.book_append_sheet(wb, ws, '轉換結果')
-    XLSX.writeFile(wb, '轉換結果.xlsx')
+    const data = outputRows.length > 0 ? outputRows : [mapping]
+    const headers = Object.keys(data[0] || {})
+
+    const workbook = new ExcelJS.Workbook()
+    const worksheet = workbook.addWorksheet('轉換結果')
+    worksheet.addRow(headers)
+    data.forEach(row => worksheet.addRow(headers.map(h => row[h] ?? '')))
+
+    const buffer = await workbook.xlsx.writeBuffer()
+    saveAs(
+      new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }),
+      '轉換結果.xlsx'
+    )
   }
 
   return (
