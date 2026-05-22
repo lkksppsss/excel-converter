@@ -1,0 +1,55 @@
+﻿.node {
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: 1.5px solid #d0d0d0;
+  background: #fff;
+  min-width: 160px;
+  max-width: 220px;
+  cursor: default;
+  user-select: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  position: relative;
+}
+
+.node:hover {
+  border-color: #4a6cf7;
+  box-shadow: 0 2px 8px rgba(74, 108, 247, 0.15);
+}
+
+.sourceNode {
+  background: #f8f9ff;
+  border-color: #c5ceff;
+}
+
+.targetNode {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+}
+
+.connected {
+  border-color: #4a6cf7 !important;
+  background: #eef1ff !important;
+}
+
+.targetNode.connected {
+  border-color: #22c55e !important;
+  background: #dcfce7 !important;
+}
+
+.label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #1a1a2e;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+
+.handle {
+  width: 12px;
+  height: 12px;
+  background: #4a6cf7;
+  border: 2px solid #fff;
+  cursor: crosshair;
+}
