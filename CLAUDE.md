@@ -6,6 +6,23 @@
 
 ---
 
+## AI 記憶檔案
+
+Claude Code 的跨對話記憶存在 `.claude/memory/`（已納入 git）。
+
+**換新機器時，執行一次：**
+```powershell
+# Windows — 將專案記憶複製到 Claude Code 的本機記憶路徑
+$src = "$PWD\.claude\memory"
+$dest = "$env:USERPROFILE\.claude\projects\$($PWD.Path.Replace('\','-').Replace(':','') -replace '^-','')\memory"
+New-Item -ItemType Directory -Force $dest | Out-Null
+Copy-Item "$src\*" $dest -Force
+```
+
+之後每次更新記憶，兩邊都會同步（Claude Code 寫本機路徑，git 追蹤 `.claude/memory/`）。
+
+---
+
 ## 技術棧
 
 - **React 19 + Vite 8** — 前端框架
