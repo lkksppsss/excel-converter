@@ -1,0 +1,181 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
+  overflow: hidden;
+  max-height: calc(100vh - 180px);
+}
+
+.titleBar {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 16px 20px 12px;
+  border-bottom: 1px solid #e8e8e8;
+  flex-shrink: 0;
+}
+
+.titleText {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1a1a2e;
+}
+
+.subtitle {
+  font-size: 12px;
+  color: #888;
+}
+
+/* ── 捲動區 ── */
+.scrollArea {
+  overflow: auto;
+  flex: 1;
+  min-height: 0;
+}
+
+/* ── 表格 ── */
+.table {
+  border-collapse: collapse;
+  font-size: 11px;
+  white-space: nowrap;
+  min-width: 100%;
+}
+
+/* ── 通用 cell ── */
+.cell {
+  border: 1px solid #d4d4d4;
+  padding: 4px 6px;
+  color: #333;
+  background: #fff;
+  vertical-align: middle;
+  min-width: 48px;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Header row cell ── */
+.cellHeader {
+  border: 1px solid #b0b0b0;
+  padding: 5px 6px;
+  color: #1a1a2e;
+  background: #f0f4ff;
+  font-weight: 600;
+  vertical-align: middle;
+  min-width: 48px;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+/* ── 已對應填入 cell ── */
+.cellMapped {
+  border: 1px solid #90caf9;
+  padding: 4px 6px;
+  color: #0d47a1;
+  background: #e8f4fd;
+  font-weight: 500;
+  vertical-align: middle;
+  min-width: 48px;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── 空白未對應 cell ── */
+.cellEmpty {
+  border: 1px solid #e0e0e0;
+  padding: 4px 6px;
+  background: #f5f5f5;
+  vertical-align: middle;
+  min-width: 48px;
+  max-width: 140px;
+}
+
+/* ── header row 整列 ── */
+.headerRow {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+/* ── 空狀態 ── */
+.empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 240px;
+  background: #fafafa;
+  border-radius: 12px;
+  border: 1.5px dashed #d0d0d0;
+  color: #aaa;
+  font-size: 14px;
+}
+
+.empty p {
+  margin: 0;
+}
+
+/* ── 圖例 ── */
+.legend {
+  display: flex;
+  gap: 16px;
+  padding: 10px 20px;
+  border-top: 1px solid #e8e8e8;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.legendMapped,
+.legendEmpty,
+.legendOriginal {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.legendMapped::before,
+.legendEmpty::before,
+.legendOriginal::before {
+  content: '';
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.legendMapped {
+  color: #0d47a1;
+}
+
+.legendMapped::before {
+  background: #e8f4fd;
+  border: 1px solid #90caf9;
+}
+
+.legendEmpty {
+  color: #888;
+}
+
+.legendEmpty::before {
+  background: #f5f5f5;
+  border: 1px solid #e0e0e0;
+}
+
+.legendOriginal {
+  color: #555;
+}
+
+.legendOriginal::before {
+  background: #fff;
+  border: 1px solid #d4d4d4;
+}

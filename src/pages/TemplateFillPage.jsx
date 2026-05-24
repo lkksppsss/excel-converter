@@ -42,6 +42,8 @@ export default function TemplateFillPage({ onBack }) {
       {step === 'mapping' && (
         <TemplateMappingStep
           sourceHeaders={sourceHeaders}
+          sourceRows={sourceRows}
+          templateWorkbook={templateWorkbook}
           templateStructure={templateStructure}
           filledMonths={filledMonths}
           onBack={() => setStep('upload')}

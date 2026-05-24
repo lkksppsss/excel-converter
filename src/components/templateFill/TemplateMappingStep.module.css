@@ -1,11 +1,41 @@
 .page {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 28px;
+  gap: 24px;
   padding: 40px 24px 60px;
   width: 100%;
   box-sizing: border-box;
+  min-height: 0;
+}
+
+.pageHeader {
+  text-align: center;
+}
+
+/* ── 雙欄佈局容器 ── */
+.layout {
+  display: grid;
+  grid-template-columns: 420px 1fr;
+  gap: 24px;
+  width: 100%;
+  align-items: start;
+  min-height: 0;
+}
+
+/* ── 左欄：表單 ── */
+.formPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+/* ── 右欄：預覽 ── */
+.previewPanel {
+  min-height: 0;
+  position: sticky;
+  top: 24px;
 }
 
 .heading {
@@ -26,7 +56,6 @@
 /* ── 通用區塊卡片 ── */
 .section {
   width: 100%;
-  max-width: 760px;
   background: #fff;
   border-radius: 12px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
@@ -246,7 +275,6 @@
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  max-width: 760px;
   padding-top: 4px;
 }
 

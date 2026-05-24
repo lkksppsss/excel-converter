@@ -108,6 +108,12 @@ export function detectTemplateStructure(workbook) {
  * @param {typeof SALARY_PAYROLL_STRUCTURE} structure
  * @returns {string[]} 例如 ['一月', '二月']
  */
+const REAL_MONTH_NAMES = new Set([
+  '去年十二月',
+  '一月', '二月', '三月', '四月', '五月', '六月',
+  '七月', '八月', '九月', '十月', '十一月', '十二月',
+])
+
 export function getFilledMonths(workbook, structure) {
   if (!workbook || !structure) return []
 
@@ -130,7 +136,7 @@ export function getFilledMonths(workbook, structure) {
     const itemRow = firstEmployeeRowIndex + slotIdx * groupSize + firstItemOffset
 
     for (const [monthName, colIdx] of Object.entries(monthColumnIndices)) {
-      // 跳過非月份欄（年終、獎金、合計）—— 全部掃描，UI 層自己決定是否過濾
+      if (!REAL_MONTH_NAMES.has(monthName)) continue
       const cellAddress = XLSX.utils.encode_cell({ r: itemRow, c: colIdx })
       const cell = ws[cellAddress]
       if (cell && cell.v != null && cell.v !== '') {
