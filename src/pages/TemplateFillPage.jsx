@@ -2,26 +2,37 @@ import { useState } from 'react'
 import * as XLSX from 'xlsx'
 import { saveAs } from 'file-saver'
 import TemplateUploadStep from '../components/templateFill/TemplateUploadStep'
+import ExcelImportConfig from '../components/upload/ExcelImportConfig'
 import TemplateMappingStep from '../components/templateFill/TemplateMappingStep'
 import { fillTemplate } from '../utils/templateFiller.js'
 
-// 狀態機：'upload' → 'mapping' → (export trigger → back to upload 或 done)
+// 狀態機：'upload' → 'source-config' → 'mapping'
 export default function TemplateFillPage({ onBack }) {
   const [step, setStep] = useState('upload')
 
-  // 來自 upload step 的狀態
-  const [sourceRows, setSourceRows] = useState([])
-  const [sourceHeaders, setSourceHeaders] = useState([])
+  // 來自 upload step
+  const [sourceWorkbook, setSourceWorkbook] = useState(null)
   const [templateWorkbook, setTemplateWorkbook] = useState(null)
   const [templateStructure, setTemplateStructure] = useState(null)
   const [filledMonths, setFilledMonths] = useState([])
 
-  function handleReady(rows, headers, workbook, structure, months) {
-    setSourceRows(rows)
-    setSourceHeaders(headers)
-    setTemplateWorkbook(workbook)
+  // 來自 ExcelImportConfig
+  const [sourceRows, setSourceRows] = useState([])
+  const [sourceHeaders, setSourceHeaders] = useState([])
+  const [importConfig, setImportConfig] = useState(null)  // 保留設定供回上一步用
+
+  function handleUploadReady(srcWb, tmplWb, structure, months) {
+    setSourceWorkbook(srcWb)
+    setTemplateWorkbook(tmplWb)
     setTemplateStructure(structure)
     setFilledMonths(months)
+    setStep('source-config')
+  }
+
+  function handleImportConfirm({ headers, rows, selectedSheets, colDefs }) {
+    setSourceHeaders(headers)
+    setSourceRows(rows)
+    setImportConfig({ selectedSheets, colDefs })
     setStep('mapping')
   }
 
@@ -37,7 +48,15 @@ export default function TemplateFillPage({ onBack }) {
   return (
     <>
       {step === 'upload' && (
-        <TemplateUploadStep onReady={handleReady} />
+        <TemplateUploadStep onReady={handleUploadReady} />
+      )}
+      {step === 'source-config' && (
+        <ExcelImportConfig
+          workbook={sourceWorkbook}
+          onConfirm={handleImportConfirm}
+          onCancel={() => setStep('upload')}
+          initialConfig={importConfig}
+        />
       )}
       {step === 'mapping' && (
         <TemplateMappingStep
@@ -46,7 +65,7 @@ export default function TemplateFillPage({ onBack }) {
           templateWorkbook={templateWorkbook}
           templateStructure={templateStructure}
           filledMonths={filledMonths}
-          onBack={() => setStep('upload')}
+          onBack={() => setStep('source-config')}
           onExport={handleExport}
         />
       )}

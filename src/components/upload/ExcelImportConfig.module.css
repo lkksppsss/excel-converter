@@ -1,0 +1,390 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  padding: 24px 32px;
+  gap: 20px;
+  overflow: hidden;
+}
+
+/* ── Header ── */
+.header {
+  flex-shrink: 0;
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin: 0 0 6px;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: #666;
+  margin: 0;
+}
+
+.sheetNote {
+  color: #22c55e;
+  font-weight: 500;
+}
+
+/* ── Section label ── */
+.sectionLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: #444;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.tableTip {
+  font-weight: 400;
+  color: #888;
+  font-size: 12px;
+}
+
+/* ── Sheet selector ── */
+.sheetSection {
+  flex-shrink: 0;
+}
+
+.sheetList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.sheetItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px 5px 8px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 13px;
+  color: #444;
+  background: #fff;
+  transition: all 0.15s;
+  user-select: none;
+}
+
+.sheetItem:hover {
+  border-color: #4a6cf7;
+  background: #f8f9ff;
+}
+
+.sheetItemActive {
+  border-color: #4a6cf7;
+  background: #eef1ff;
+  color: #4a6cf7;
+}
+
+.sheetCheckbox {
+  cursor: pointer;
+  accent-color: #4a6cf7;
+}
+
+.sheetName {
+  cursor: pointer;
+}
+
+.previewBadge {
+  font-size: 11px;
+  background: #4a6cf7;
+  color: #fff;
+  border-radius: 10px;
+  padding: 1px 7px;
+  margin-left: 2px;
+}
+
+.multiNote {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #22c55e;
+  font-weight: 500;
+}
+
+/* ── 月份標籤 ── */
+.monthSection {
+  flex-shrink: 0;
+}
+
+.monthGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+}
+
+.monthRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.monthSheetName {
+  font-size: 12px;
+  color: #555;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.monthArrow {
+  color: #bbb;
+  font-size: 13px;
+}
+
+.monthSelect {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 12px;
+  color: #333;
+  background: #fff;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.monthSelect:focus {
+  border-color: #4a6cf7;
+}
+
+.monthSelect option[value=""] {
+  color: #aaa;
+}
+
+.monthNote {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #22c55e;
+  font-weight: 500;
+}
+
+/* ── Preview table ── */
+.tableSection {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.tableScroll {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.table {
+  border-collapse: collapse;
+  font-size: 13px;
+  width: max-content;
+  min-width: 100%;
+}
+
+/* Column letter row */
+.colLetterTh {
+  background: #f3f4f6;
+  color: #888;
+  font-weight: 600;
+  font-size: 12px;
+  padding: 6px 8px;
+  text-align: center;
+  border-bottom: 1px solid #e5e7eb;
+  border-right: 1px solid #e5e7eb;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  min-width: 90px;
+}
+
+/* Header input row */
+.inputTh {
+  background: #f8faff;
+  padding: 4px 6px;
+  border-bottom: 2px solid #4a6cf7;
+  border-right: 1px solid #e5e7eb;
+  position: sticky;
+  top: 29px;
+  z-index: 1;
+}
+
+.headerInput {
+  width: 100%;
+  min-width: 80px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 4px 7px;
+  font-size: 12px;
+  color: #333;
+  background: #fff;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.headerInput:focus {
+  border-color: #4a6cf7;
+}
+
+.headerInput::placeholder {
+  color: #ccc;
+}
+
+.headerInputFilled {
+  border-color: #4a6cf7;
+  background: #eef1ff;
+  color: #4a6cf7;
+  font-weight: 600;
+  padding-right: 22px;
+}
+
+.inputWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.clearBtn {
+  position: absolute;
+  right: 4px;
+  background: none;
+  border: none;
+  color: #4a6cf7;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 2px;
+  opacity: 0.6;
+  transition: opacity 0.1s;
+}
+
+.clearBtn:hover {
+  opacity: 1;
+}
+
+/* Row number column */
+.rowNumTh {
+  background: #f3f4f6;
+  color: #bbb;
+  font-size: 11px;
+  padding: 6px 8px;
+  border-right: 1px solid #e5e7eb;
+  border-bottom: 1px solid #e5e7eb;
+  position: sticky;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  min-width: 44px;
+  text-align: center;
+}
+
+.rowNum {
+  color: #bbb;
+  font-size: 11px;
+  padding: 6px 8px;
+  text-align: center;
+  border-right: 1px solid #e5e7eb;
+  background: #fafafa;
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  white-space: nowrap;
+}
+
+/* Data cells */
+.cell {
+  padding: 6px 10px;
+  border-bottom: 1px solid #f0f0f0;
+  border-right: 1px solid #f0f0f0;
+  color: #333;
+  white-space: nowrap;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.cell:hover {
+  background: #f0f4ff;
+}
+
+.cellIsHeader {
+  background: #eef1ff;
+  color: #4a6cf7;
+  font-weight: 600;
+}
+
+.cellIsHeader:hover {
+  background: #dde4ff;
+}
+
+/* ── Actions ── */
+.actions {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 4px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.actionRight {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.namedBadge {
+  font-size: 13px;
+  color: #22c55e;
+  font-weight: 600;
+}
+
+.cancelBtn {
+  background: none;
+  border: 1px solid #ddd;
+  color: #555;
+  padding: 9px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.cancelBtn:hover {
+  border-color: #999;
+  color: #333;
+}
+
+.confirmBtn {
+  background: #4a6cf7;
+  color: #fff;
+  border: none;
+  padding: 10px 28px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.confirmBtn:hover:not(:disabled) {
+  background: #3b5fe2;
+}
+
+.confirmBtn:disabled {
+  background: #d0d0d0;
+  color: #999;
+  cursor: not-allowed;
+}

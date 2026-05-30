@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react'
 import * as XLSX from 'xlsx'
-import { parseExcelData } from '../../utils/excel.js'
+import { readSheetJSWorkbook } from '../../utils/fileParser/fileParserFactory.js'
 import { detectTemplateStructure, getFilledMonths } from '../../utils/templateStructure.js'
 import styles from './TemplateUploadStep.module.css'
 
@@ -51,8 +51,7 @@ function FileDropZone({ label, hint, accept, onFile, file, loading, error, child
 export default function TemplateUploadStep({ onReady }) {
   // 來源薪資資料
   const [sourceFile, setSourceFile] = useState(null)
-  const [sourceHeaders, setSourceHeaders] = useState(null)
-  const [sourceRows, setSourceRows] = useState([])
+  const [sourceWorkbook, setSourceWorkbook] = useState(null)
   const [sourceLoading, setSourceLoading] = useState(false)
   const [sourceError, setSourceError] = useState('')
 
@@ -70,9 +69,8 @@ export default function TemplateUploadStep({ onReady }) {
     setSourceError('')
     setSourceLoading(true)
     try {
-      const { headers, rows } = await parseExcelData(file)
-      setSourceHeaders(headers)
-      setSourceRows(rows)
+      const wb = await readSheetJSWorkbook(file)
+      setSourceWorkbook(wb)
     } catch (e) {
       setSourceError(e.message)
     } finally {
@@ -107,13 +105,11 @@ export default function TemplateUploadStep({ onReady }) {
   }
 
   // ── 是否可繼續 ────────────────────────────────────────────────────────────────
-  const canProceed =
-    sourceHeaders && sourceHeaders.length > 0 &&
-    templateWorkbook !== null
+  const canProceed = sourceWorkbook !== null && templateWorkbook !== null
 
   function handleProceed() {
     if (canProceed) {
-      onReady(sourceRows, sourceHeaders, templateWorkbook, templateStructure, filledMonths)
+      onReady(sourceWorkbook, templateWorkbook, templateStructure, filledMonths)
     }
   }
 
@@ -137,15 +133,17 @@ export default function TemplateUploadStep({ onReady }) {
           loading={sourceLoading}
           error={sourceError}
         >
-          {sourceHeaders && sourceHeaders.length > 0 && (
+          {sourceWorkbook && (
             <div className={styles.preview}>
-              <div className={styles.previewTitle}>偵測到 {sourceHeaders.length} 個欄位：</div>
+              <div className={styles.previewTitle}>
+                {sourceWorkbook.SheetNames.length} 個工作表 — 下一步設定欄位標題
+              </div>
               <div className={styles.fieldTags}>
-                {sourceHeaders.slice(0, 8).map((f, i) => (
-                  <span key={i} className={styles.fieldTag}>{f}</span>
+                {sourceWorkbook.SheetNames.slice(0, 5).map((name, i) => (
+                  <span key={i} className={styles.fieldTag}>{name}</span>
                 ))}
-                {sourceHeaders.length > 8 && (
-                  <span className={styles.fieldTagMore}>+{sourceHeaders.length - 8} 更多</span>
+                {sourceWorkbook.SheetNames.length > 5 && (
+                  <span className={styles.fieldTagMore}>+{sourceWorkbook.SheetNames.length - 5} 更多</span>
                 )}
               </div>
             </div>

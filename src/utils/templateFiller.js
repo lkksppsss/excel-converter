@@ -64,36 +64,38 @@ export function fillTemplate(workbook, sourceRows, mappingConfig, structure) {
 
   // 員工清單（依 sourceRows 出現順序排列，去重）
   const employeeIds = [...groups.keys()]
+  const neededSlots = employeeIds.length
 
   // ------------------------------------------------------------------
-  // 步驟 2：決定每個員工對應哪個範本 slot
+  // 步驟 2：若員工數超過模板 slot 數，動態複製第一個 slot 的列結構來擴充
+  // ------------------------------------------------------------------
+  if (neededSlots > maxEmployees) {
+    expandWorksheet(ws, firstEmployeeRowIndex, groupSize, maxEmployees, neededSlots)
+  }
+  const effectiveMax = Math.max(maxEmployees, neededSlots)
+
+  // ------------------------------------------------------------------
+  // 步驟 3：決定每個員工對應哪個範本 slot
   //   優先用身分證號比對現有 slot，找不到就按順序分配空白 slot
   // ------------------------------------------------------------------
 
-  /**
-   * 讀取範本 slot 中已有的身分證號值
-   * @param {number} slotIdx
-   * @returns {string}
-   */
   function getExistingSlotId(slotIdx) {
     const idColIdx = identityColumns['身分證號']
-    const rowIdx = firstEmployeeRowIndex + slotIdx * groupSize // offset 0
+    const rowIdx = firstEmployeeRowIndex + slotIdx * groupSize
     const cellAddr = XLSX.utils.encode_cell({ r: rowIdx, c: idColIdx })
     const cell = ws[cellAddr]
     return cell && cell.v != null ? String(cell.v).trim() : ''
   }
 
-  // 先掃描範本中既有的 slot → 身分證號 mapping
-  const existingSlotMap = new Map() // 身分證號 → slotIdx
+  const existingSlotMap = new Map()
   for (let slotIdx = 0; slotIdx < maxEmployees; slotIdx++) {
     const existingId = getExistingSlotId(slotIdx)
     if (existingId) existingSlotMap.set(existingId, slotIdx)
   }
 
-  // 找出空白 slot（範本中沒有身分證號的 slot）
   const occupiedSlots = new Set(existingSlotMap.values())
   const blankSlots = []
-  for (let slotIdx = 0; slotIdx < maxEmployees; slotIdx++) {
+  for (let slotIdx = 0; slotIdx < effectiveMax; slotIdx++) {
     if (!occupiedSlots.has(slotIdx)) blankSlots.push(slotIdx)
   }
 
@@ -103,18 +105,15 @@ export function fillTemplate(workbook, sourceRows, mappingConfig, structure) {
 
   for (const empId of employeeIds) {
     if (existingSlotMap.has(empId)) {
-      // 範本已有此人，用比對到的 slot
       employeeSlotMap.set(empId, existingSlotMap.get(empId))
     } else if (blankSlotPointer < blankSlots.length) {
-      // 新員工，分配下一個空白 slot
       employeeSlotMap.set(empId, blankSlots[blankSlotPointer])
       blankSlotPointer++
     }
-    // 超過 maxEmployees 時 employeeSlotMap 不會有此 id，後續直接跳過
   }
 
   // ------------------------------------------------------------------
-  // 步驟 3：計算 selectedMonths 對應的欄 index（預先計算，避免重複查找）
+  // 步驟 4：計算 selectedMonths 對應的欄 index（預先計算，避免重複查找）
   // ------------------------------------------------------------------
   /** @type {Array<{monthName: string, colIdx: number}>} */
   const selectedMonthCols = selectedMonths
@@ -122,7 +121,7 @@ export function fillTemplate(workbook, sourceRows, mappingConfig, structure) {
     .filter(({ colIdx }) => colIdx != null)
 
   // ------------------------------------------------------------------
-  // 步驟 4：填入每個員工的資料
+  // 步驟 5：填入每個員工的資料
   // ------------------------------------------------------------------
 
   /**
@@ -199,11 +198,58 @@ export function fillTemplate(workbook, sourceRows, mappingConfig, structure) {
   }
 
   // ------------------------------------------------------------------
-  // 步驟 5：更新 sheet range，確保 XLSX.write() 能正確輸出所有 cell
+  // 步驟 6：更新 sheet range，確保 XLSX.write() 能正確輸出所有 cell
   // ------------------------------------------------------------------
   updateSheetRange(ws)
 
   return workbook
+}
+
+/**
+ * 複製第 0 個員工 slot 的列結構，擴充工作表以容納更多員工。
+ * SheetJS CE 不支援樣式複製，但 cell 值（含欄位標籤）和合併儲存格會保留。
+ *
+ * @param {import('xlsx').WorkSheet} ws
+ * @param {number} firstEmployeeRowIndex
+ * @param {number} groupSize
+ * @param {number} currentMax  - 目前模板有幾個 slot
+ * @param {number} targetMax   - 需要幾個 slot
+ */
+function expandWorksheet(ws, firstEmployeeRowIndex, groupSize, currentMax, targetMax) {
+  const srcStart = firstEmployeeRowIndex
+  const srcEnd = srcStart + groupSize - 1
+
+  // 收集第 0 個 slot 的所有 cell（只複製非空欄）
+  const srcCells = []
+  for (const addr of Object.keys(ws)) {
+    if (addr.startsWith('!')) continue
+    const { r, c } = XLSX.utils.decode_cell(addr)
+    if (r >= srcStart && r <= srcEnd) {
+      srcCells.push({ r, c, cell: ws[addr] })
+    }
+  }
+
+  // 第 0 個 slot 的合併儲存格
+  const srcMerges = (ws['!merges'] || []).filter(
+    m => m.s.r >= srcStart && m.e.r <= srcEnd
+  )
+
+  for (let slot = currentMax; slot < targetMax; slot++) {
+    const rowOffset = slot * groupSize  // 相對於 srcStart 的偏移量
+
+    // 複製 cell
+    for (const { r, c, cell } of srcCells) {
+      const destAddr = XLSX.utils.encode_cell({ r: r + rowOffset, c })
+      ws[destAddr] = { ...cell }
+    }
+
+    // 複製合併儲存格
+    const newMerges = srcMerges.map(m => ({
+      s: { r: m.s.r + rowOffset, c: m.s.c },
+      e: { r: m.e.r + rowOffset, c: m.e.c },
+    }))
+    ws['!merges'] = [...(ws['!merges'] || []), ...newMerges]
+  }
 }
 
 /**

@@ -269,6 +269,66 @@
   white-space: nowrap;
 }
 
+/* ── 月份對應 grid（新版：模板月份 ← 來源值下拉）── */
+.monthHint {
+  font-size: 13px;
+  color: #888;
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+
+.monthMapGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px 16px;
+}
+
+.monthMapRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.templateMonth {
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
+  width: 52px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.templateMonthFilled {
+  color: #92400e;
+}
+
+.monthArrow {
+  color: #bbb;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.monthSelect {
+  flex: 1;
+  min-width: 0;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 5px 8px;
+  font-size: 12px;
+  color: #333;
+  background: #fff;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.15s;
+  font-family: inherit;
+}
+
+.monthSelect:focus {
+  border-color: #4a6cf7;
+}
+
 /* ── 按鈕列 ── */
 .actions {
   display: flex;

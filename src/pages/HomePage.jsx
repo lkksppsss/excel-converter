@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import UploadPanel from '../components/upload/UploadPanel'
+import ExcelImportConfig from '../components/upload/ExcelImportConfig'
 import MappingCanvas from '../components/mapper/MappingCanvas'
 import TemplateFillPage from './TemplateFillPage'
 import styles from './HomePage.module.css'
@@ -39,27 +40,27 @@ function HomeSelection({ onSelect }) {
   )
 }
 
-function TemplateStub({ onBack }) {
-  return (
-    <div className={styles.stubWrapper}>
-      <p className={styles.stubMessage}>模板填入功能即將推出</p>
-      <button className={styles.backButton} onClick={onBack}>
-        返回首頁
-      </button>
-    </div>
-  )
-}
-
 export default function HomePage() {
+  const [sourceWorkbook, setSourceWorkbook] = useState(null)
   const [sourceFields, setSourceFields] = useState([])
   const [sourceRows, setSourceRows] = useState([])
   const [targetFields, setTargetFields] = useState([])
   const [step, setStep] = useState('home')
+  const [importConfig, setImportConfig] = useState(null)
 
-  function handleFilesReady(source, target, rows) {
-    setSourceFields(source)
+  // UploadPanel 完成後：拿到 workbook + targetFields
+  function handleFilesReady(workbook, target) {
+    setSourceWorkbook(workbook)
     setTargetFields(target)
+    setImportConfig(null)  // 新檔案，清除舊設定
+    setStep('source-config')
+  }
+
+  // ExcelImportConfig 確認後：拿到 headers + rows
+  function handleImportConfirm({ headers, rows, selectedSheets, colDefs }) {
+    setSourceFields(headers)
     setSourceRows(rows)
+    setImportConfig({ selectedSheets, colDefs })
     setStep('mapping')
   }
 
@@ -75,12 +76,20 @@ export default function HomePage() {
       {step === 'upload' && (
         <UploadPanel onReady={handleFilesReady} />
       )}
+      {step === 'source-config' && (
+        <ExcelImportConfig
+          workbook={sourceWorkbook}
+          onConfirm={handleImportConfirm}
+          onCancel={() => setStep('upload')}
+          initialConfig={importConfig}
+        />
+      )}
       {step === 'mapping' && (
         <MappingCanvas
           sourceFields={sourceFields}
           targetFields={targetFields}
           sourceRows={sourceRows}
-          onBack={() => setStep('upload')}
+          onBack={() => setStep('source-config')}
         />
       )}
       {step === 'template-stub' && (

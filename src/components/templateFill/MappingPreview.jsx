@@ -4,11 +4,6 @@ import styles from './MappingPreview.module.css'
 
 const PREVIEW_EMPLOYEE_SLOTS = 3
 
-// 數字月份 → 中文月份（和 TemplateMappingStep 保持一致）
-const MONTHS_NUMERIC = ['1','2','3','4','5','6','7','8','9','10','11','12']
-const MONTHS_CHINESE = ['一月','二月','三月','四月','五月','六月',
-                        '七月','八月','九月','十月','十一月','十二月']
-
 export default function MappingPreview({
   templateWorkbook,
   templateStructure,
@@ -17,7 +12,7 @@ export default function MappingPreview({
   salaryMapping,
   selectedMonths,
   monthSourceColumn,
-  monthFormat,
+  monthValueMapping,
 }) {
   const { grid, mergeMap, overrideMap } = useMemo(() => {
     if (!templateWorkbook || !templateStructure) {
@@ -99,17 +94,12 @@ export default function MappingPreview({
 
         // 步驟 3：填薪資項目（依月份找對應列）
         for (const monthName of selectedMonths) {
-          // monthName 已是中文（selectedMonthsInTemplateFmt），需轉回來源格式比對
-          // 來源月份欄的值格式由 monthFormat 決定（'numeric' 或 'chinese'）
-          let monthLabel = monthName
-          if (monthFormat === 'numeric') {
-            // monthName 是中文，轉成對應的數字字串供比對
-            const idx = MONTHS_CHINESE.indexOf(monthName)
-            if (idx >= 0) monthLabel = MONTHS_NUMERIC[idx]
-          }
+          // 從 monthValueMapping（source值 → 模板月份）反查：找哪個來源值對應此模板月份
+          const monthLabel = Object.entries(monthValueMapping ?? {})
+            .find(([, v]) => v === monthName)?.[0]
 
           const monthRow = empRows.find((row) => {
-            if (!monthSourceColumn) return false
+            if (!monthSourceColumn || !monthLabel) return false
             const rawMonth = String(row[monthSourceColumn] ?? '').trim()
             return rawMonth === monthLabel
           })
@@ -161,7 +151,7 @@ export default function MappingPreview({
     }
 
     return { grid, mergeMap, overrideMap }
-  }, [templateWorkbook, templateStructure, sourceRows, identityMapping, salaryMapping, selectedMonths, monthSourceColumn, monthFormat])
+  }, [templateWorkbook, templateStructure, sourceRows, identityMapping, salaryMapping, selectedMonths, monthSourceColumn, monthValueMapping])
 
   if (!templateWorkbook || !templateStructure) {
     return (

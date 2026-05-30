@@ -70,43 +70,39 @@ export default function TemplateMappingStep({
   )
 
   // 區塊 C：月份設定
-  const [monthSourceColumn, setMonthSourceColumn] = useState('')
-  const [monthFormat, setMonthFormat] = useState('numeric') // 'numeric' | 'chinese'
-  const [selectedMonths, setSelectedMonths] = useState([])
+  // 自動偵測月份欄（優先「來源分頁」，其次「月份」，其次讓使用者自選）
+  const autoMonthCol = sourceHeaders.includes('來源分頁') ? '來源分頁'
+    : sourceHeaders.includes('月份') ? '月份'
+    : ''
+  const [monthSourceColumn, setMonthSourceColumn] = useState(autoMonthCol)
 
-  // ── 衍生的月份標籤（依格式決定）────────────────────────────────────────────
-  const monthLabels = monthFormat === 'numeric' ? MONTHS_NUMERIC : MONTHS_CHINESE
+  // 從月份欄取出所有不重複的值（即 sheet 名稱或月份名稱）
+  const uniqueMonthValues = monthSourceColumn
+    ? [...new Set(sourceRows.map(r => String(r[monthSourceColumn] ?? '')).filter(v => v))]
+    : []
+
+  // 每個模板月份（一月～十二月）對應到哪個來源值
+  const [monthMapping, setMonthMapping] = useState(() => {
+    const m = {}
+    for (const tm of MONTHS_CHINESE) m[tm] = ''
+    return m
+  })
 
   // ── 驗證是否可匯出 ────────────────────────────────────────────────────────
   const requiredIdentityFilled = IDENTITY_FIELDS
     .filter((f) => f.required)
     .every((f) => identityMapping[f.key] !== '')
 
-  const canExport = requiredIdentityFilled && selectedMonths.length > 0
-
-  // ── 切換月份 checkbox ──────────────────────────────────────────────────────
-  function toggleMonth(label) {
-    setSelectedMonths((prev) =>
-      prev.includes(label) ? prev.filter((m) => m !== label) : [...prev, label]
-    )
-  }
-
-  // 將 selectedMonths UI 標籤轉為範本中文月份名稱
-  const selectedMonthsInTemplateFmt = selectedMonths.map((label) => {
-    if (monthFormat === 'numeric') {
-      const idx = MONTHS_NUMERIC.indexOf(label)
-      return idx >= 0 ? MONTHS_CHINESE[idx] : label
-    }
-    return label
-  })
+  const selectedMonthsInTemplateFmt = MONTHS_CHINESE.filter(m => monthMapping[m])
+  const canExport = requiredIdentityFilled && selectedMonthsInTemplateFmt.length > 0
 
   // ── 建構 monthValueMapping ─────────────────────────────────────────────────
   function buildMonthValueMapping() {
-    if (monthFormat === 'chinese') {
-      return Object.fromEntries(MONTHS_CHINESE.map((c) => [c, c]))
-    } else {
-      return Object.fromEntries(MONTHS_NUMERIC.map((n, i) => [n, MONTHS_CHINESE[i]]))
-    }
+    return Object.fromEntries(
+      MONTHS_CHINESE
+        .filter(tm => monthMapping[tm])
+        .map(tm => [monthMapping[tm], tm])
+    )
   }
 
   // ── 匯出 ──────────────────────────────────────────────────────────────────
@@ -194,82 +190,72 @@ export default function TemplateMappingStep({
               月份設定
             </div>
 
-            <div className={styles.monthSourceRow}>
-              <div className={styles.monthLabel}>月份來源欄：</div>
-              <ColumnSelect
-                value={monthSourceColumn}
-                onChange={setMonthSourceColumn}
-                sourceHeaders={sourceHeaders}
-                placeholder="— 選擇代表月份的欄位 —"
-              />
-            </div>
-
-            <div className={styles.radioGroup}>
-              <span className={styles.radioGroupLabel}>月份格式：</span>
-              <label className={styles.radioOption}>
-                <input
-                  type="radio"
-                  name="monthFormat"
-                  value="numeric"
-                  checked={monthFormat === 'numeric'}
-                  onChange={() => {
-                    setMonthFormat('numeric')
-                    setSelectedMonths([])
-                  }}
+            {/* 月份欄非自動偵測時，讓使用者手動選 */}
+            {!autoMonthCol && (
+              <div className={styles.monthSourceRow}>
+                <div className={styles.monthLabel}>月份來源欄：</div>
+                <ColumnSelect
+                  value={monthSourceColumn}
+                  onChange={setMonthSourceColumn}
+                  sourceHeaders={sourceHeaders}
+                  placeholder="— 選擇代表月份的欄位 —"
                 />
-                數字（1, 2, 3 … 12）
-              </label>
-              <label className={styles.radioOption}>
-                <input
-                  type="radio"
-                  name="monthFormat"
-                  value="chinese"
-                  checked={monthFormat === 'chinese'}
-                  onChange={() => {
-                    setMonthFormat('chinese')
-                    setSelectedMonths([])
-                  }}
-                />
-                中文（一月, 二月 …）
-              </label>
-            </div>
+              </div>
+            )}
 
-            <div className={styles.monthGridLabel}>選擇本次填入的月份：</div>
-            <div className={styles.monthGrid}>
-              {monthLabels.map((label, idx) => {
-                const isChecked = selectedMonths.includes(label)
-                const isFilled = filledMonths.includes(label) ||
-                  filledMonths.includes(MONTHS_CHINESE[idx]) ||
-                  filledMonths.includes(MONTHS_NUMERIC[idx])
+            {monthSourceColumn && uniqueMonthValues.length === 0 && (
+              <div className={styles.monthHint}>找不到月份資料，請確認欄位是否正確。</div>
+            )}
 
-                let cellClass = styles.monthCheckbox
-                if (isChecked && isFilled) cellClass += ' ' + styles.monthCheckboxCheckedFilled
-                else if (isChecked) cellClass += ' ' + styles.monthCheckboxChecked
-                else if (isFilled) cellClass += ' ' + styles.monthCheckboxFilled
-
-                return (
-                  <div key={label} className={styles.monthCell}>
-                    <label className={cellClass}>
-                      <input
-                        type="checkbox"
-                        checked={isChecked}
-                        onChange={() => toggleMonth(label)}
-                      />
-                      {label}
-                    </label>
-                    {isFilled && (
-                      <span className={styles.filledBadge}>已有資料</span>
-                    )}
+            {monthSourceColumn && uniqueMonthValues.length > 0 && (
+              <>
+                {autoMonthCol && (
+                  <div className={styles.monthHint}>
+                    自動偵測月份欄：<strong>{monthSourceColumn}</strong>，
+                    選項為上傳檔案的工作表名稱，不可修改。
                   </div>
-                )
-              })}
-            </div>
+                )}
+                <div className={styles.monthGridLabel}>
+                  為每個月份選擇對應的工作表（未選擇的月份不填入）：
+                </div>
+                <div className={styles.monthMapGrid}>
+                  {MONTHS_CHINESE.map((tm, idx) => {
+                    const isFilled = filledMonths.includes(tm)
+                    return (
+                      <div key={tm} className={styles.monthMapRow}>
+                        <span className={`${styles.templateMonth} ${isFilled ? styles.templateMonthFilled : ''}`}>
+                          {tm}
+                          {isFilled && <span className={styles.filledBadge}>已有資料</span>}
+                        </span>
+                        <span className={styles.monthArrow}>←</span>
+                        <select
+                          className={styles.monthSelect}
+                          value={monthMapping[tm]}
+                          onChange={e => setMonthMapping(prev => ({ ...prev, [tm]: e.target.value }))}
+                        >
+                          <option value="">（不填）</option>
+                          {uniqueMonthValues.map(v => (
+                            <option key={v} value={v}>{v}</option>
+                          ))}
+                        </select>
+                      </div>
+                    )
+                  })}
+                </div>
+              </>
+            )}
+
+            {!monthSourceColumn && (
+              <div className={styles.monthHint}>
+                找不到月份欄位。請確認來源檔案有「來源分頁」或「月份」欄。
+              </div>
+            )}
           </div>
 
           {/* ── 按鈕列 ───────────────────────────────────────────────────── */}
           <div className={styles.actions}>
             <button className={styles.backBtn} onClick={onBack}>
-              ← 重新上傳
+              ← 上一步
             </button>
             <button
               className={styles.exportBtn}
@@ -292,7 +278,7 @@ export default function TemplateMappingStep({
             salaryMapping={salaryMapping}
             selectedMonths={selectedMonthsInTemplateFmt}
             monthSourceColumn={monthSourceColumn}
-            monthFormat={monthFormat}
+            monthValueMapping={buildMonthValueMapping()}
           />
         </div>
       </div>

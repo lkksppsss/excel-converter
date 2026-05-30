@@ -1,8 +1,9 @@
 import { useState, useCallback } from 'react'
-import { parseExcelHeaders, parseExcelData } from '../../utils/excel'
+import { parseExcelHeaders } from '../../utils/excel'
+import { readSheetJSWorkbook } from '../../utils/fileParser/fileParserFactory'
 import styles from './UploadPanel.module.css'
 
-function FileDropZone({ label, hint, onFile, file, fields, error, loading }) {
+function FileDropZone({ label, hint, onFile, file, error, loading, children }) {
   const [dragOver, setDragOver] = useState(false)
 
   const handleDrop = useCallback((e) => {
@@ -39,20 +40,7 @@ function FileDropZone({ label, hint, onFile, file, fields, error, loading }) {
 
       {loading && <div className={styles.loading}>解析中...</div>}
       {error && <div className={styles.error}>{error}</div>}
-
-      {fields && fields.length > 0 && (
-        <div className={styles.preview}>
-          <div className={styles.previewTitle}>偵測到 {fields.length} 個欄位：</div>
-          <div className={styles.fieldTags}>
-            {fields.slice(0, 8).map((f, i) => (
-              <span key={i} className={styles.fieldTag}>{f}</span>
-            ))}
-            {fields.length > 8 && (
-              <span className={styles.fieldTagMore}>+{fields.length - 8} 更多</span>
-            )}
-          </div>
-        </div>
-      )}
+      {children}
     </div>
   )
 }
@@ -60,8 +48,7 @@ function FileDropZone({ label, hint, onFile, file, fields, error, loading }) {
 export default function UploadPanel({ onReady }) {
   const [sourceFile, setSourceFile] = useState(null)
   const [targetFile, setTargetFile] = useState(null)
-  const [sourceFields, setSourceFields] = useState(null)
-  const [sourceRows, setSourceRows] = useState([])
+  const [sourceWorkbook, setSourceWorkbook] = useState(null)
   const [targetFields, setTargetFields] = useState(null)
   const [sourceError, setSourceError] = useState('')
   const [targetError, setTargetError] = useState('')
@@ -73,9 +60,8 @@ export default function UploadPanel({ onReady }) {
     setSourceError('')
     setSourceLoading(true)
     try {
-      const { headers, rows } = await parseExcelData(file)
-      setSourceFields(headers)
-      setSourceRows(rows)
+      const wb = await readSheetJSWorkbook(file)
+      setSourceWorkbook(wb)
     } catch (e) {
       setSourceError(e.message)
     } finally {
@@ -97,13 +83,10 @@ export default function UploadPanel({ onReady }) {
     }
   }
 
-  const canProceed = sourceFields && sourceFields.length > 0 &&
-                     targetFields && targetFields.length > 0
+  const canProceed = sourceWorkbook !== null && targetFields && targetFields.length > 0
 
   function handleStart() {
-    if (canProceed) {
-      onReady(sourceFields, targetFields, sourceRows)
-    }
+    if (canProceed) onReady(sourceWorkbook, targetFields)
   }
 
   return (
@@ -121,10 +104,25 @@ export default function UploadPanel({ onReady }) {
           hint="拖曳或點擊上傳 .xlsx / .xls / .csv"
           onFile={handleSourceFile}
           file={sourceFile}
-          fields={sourceFields}
           error={sourceError}
           loading={sourceLoading}
-        />
+        >
+          {sourceWorkbook && (
+            <div className={styles.preview}>
+              <div className={styles.previewTitle}>
+                {sourceWorkbook.SheetNames.length} 個工作表 — 下一步設定欄位標題
+              </div>
+              <div className={styles.fieldTags}>
+                {sourceWorkbook.SheetNames.slice(0, 5).map((name, i) => (
+                  <span key={i} className={styles.fieldTag}>{name}</span>
+                ))}
+                {sourceWorkbook.SheetNames.length > 5 && (
+                  <span className={styles.fieldTagMore}>+{sourceWorkbook.SheetNames.length - 5} 更多</span>
+                )}
+              </div>
+            </div>
+          )}
+        </FileDropZone>
 
         <div className={styles.arrow}>→</div>
 
@@ -133,10 +131,23 @@ export default function UploadPanel({ onReady }) {
           hint="拖曳或點擊上傳 .xlsx / .xls / .csv"
           onFile={handleTargetFile}
           file={targetFile}
-          fields={targetFields}
           error={targetError}
           loading={targetLoading}
-        />
+        >
+          {targetFields && targetFields.length > 0 && (
+            <div className={styles.preview}>
+              <div className={styles.previewTitle}>偵測到 {targetFields.length} 個欄位：</div>
+              <div className={styles.fieldTags}>
+                {targetFields.slice(0, 8).map((f, i) => (
+                  <span key={i} className={styles.fieldTag}>{f}</span>
+                ))}
+                {targetFields.length > 8 && (
+                  <span className={styles.fieldTagMore}>+{targetFields.length - 8} 更多</span>
+                )}
+              </div>
+            </div>
+          )}
+        </FileDropZone>
       </div>
 
       <div className={styles.actions}>
@@ -145,7 +156,7 @@ export default function UploadPanel({ onReady }) {
           disabled={!canProceed}
           onClick={handleStart}
         >
-          {canProceed ? '開始設定欄位對應 →' : '請先上傳兩個 Excel 檔案'}
+          {canProceed ? '下一步：設定來源欄位 →' : '請先上傳兩個 Excel 檔案'}
         </button>
       </div>
     </div>
