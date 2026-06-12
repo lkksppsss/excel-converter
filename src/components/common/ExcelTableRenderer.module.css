@@ -1,0 +1,126 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 0;
+}
+
+.scroller {
+  overflow: auto;
+  max-height: 480px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: #ffffff;
+}
+
+.table {
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 12px;
+  color: var(--color-text);
+}
+
+.dragging {
+  cursor: crosshair;
+}
+
+/* ── 欄字母 / 列號 ── */
+.cornerCell,
+.colHeader,
+.rowHeader {
+  position: sticky;
+  background: #eef0f6;
+  color: #6b7080;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-right: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+  text-align: center;
+  user-select: none;
+  z-index: 1;
+}
+
+.cornerCell {
+  top: 0;
+  left: 0;
+  z-index: 3;
+}
+
+.colHeader {
+  top: 0;
+  z-index: 2;
+  min-width: 64px;
+}
+
+.rowHeader {
+  left: 0;
+}
+
+.headerSelectable {
+  cursor: pointer;
+}
+
+.headerSelectable:hover {
+  background: #dde3f5;
+  color: var(--color-primary);
+}
+
+/* ── 資料格 ── */
+.cell {
+  padding: 4px 8px;
+  border-right: 1px solid #edeef3;
+  border-bottom: 1px solid #edeef3;
+  white-space: nowrap;
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  background: #ffffff;
+}
+
+.selectableCell {
+  cursor: cell;
+  user-select: none;
+}
+
+/* ── 高亮（標題區 / 資料範圍 / 填入區 / 已填入） ── */
+.hlHeader {
+  background: #dbe4ff;
+  box-shadow: inset 0 0 0 1px #5b6ef5;
+}
+
+.hlData {
+  background: #dcf5e7;
+  box-shadow: inset 0 0 0 1px #22c55e;
+}
+
+.hlFilled {
+  background: #d3f3df;
+  box-shadow: inset 0 0 0 1px #16a34a;
+  font-weight: 600;
+}
+
+.hlZone0 { background: #e5e0ff; box-shadow: inset 0 0 0 1px #7c6cf0; }
+.hlZone1 { background: #ffe8d4; box-shadow: inset 0 0 0 1px #f59e0b; }
+.hlZone2 { background: #d4f0ff; box-shadow: inset 0 0 0 1px #0ea5e9; }
+.hlZone3 { background: #ffdfe9; box-shadow: inset 0 0 0 1px #ec4899; }
+.hlZone4 { background: #e2f7d4; box-shadow: inset 0 0 0 1px #84cc16; }
+.hlZone5 { background: #f3e3ff; box-shadow: inset 0 0 0 1px #a855f7; }
+
+/* ── 拖曳選取中 ── */
+.selecting {
+  background: #c7d2fe !important;
+  box-shadow: inset 0 0 0 1px var(--color-primary);
+}
+
+.empty {
+  padding: 32px;
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: 14px;
+}
+
+.truncatedNote {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}

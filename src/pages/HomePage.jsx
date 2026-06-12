@@ -1,8 +1,8 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import UploadPanel from '../components/upload/UploadPanel'
 import ExcelImportConfig from '../components/upload/ExcelImportConfig'
 import MappingCanvas from '../components/mapper/MappingCanvas'
-import TemplateFillPage from './TemplateFillPage'
 import styles from './HomePage.module.css'
 
 function HomeSelection({ onSelect }) {
@@ -25,13 +25,13 @@ function HomeSelection({ onSelect }) {
 
         <button
           className={styles.card}
-          onClick={() => onSelect('template-stub')}
+          onClick={() => onSelect('template-fill')}
         >
           <div className={styles.cardIcon}>📋</div>
           <div className={styles.cardBody}>
-            <h2 className={styles.cardTitle}>模板填入</h2>
+            <h2 className={styles.cardTitle}>範本資料填入</h2>
             <p className={styles.cardDesc}>
-              將您的薪資資料填入標準格式範本，保留原始格式與結構
+              把資料填入固定格式的 Excel 範本，保留原始格式與結構
             </p>
           </div>
         </button>
@@ -41,6 +41,7 @@ function HomeSelection({ onSelect }) {
 }
 
 export default function HomePage() {
+  const navigate = useNavigate()
   const [sourceWorkbook, setSourceWorkbook] = useState(null)
   const [sourceFields, setSourceFields] = useState([])
   const [sourceRows, setSourceRows] = useState([])
@@ -65,6 +66,11 @@ export default function HomePage() {
   }
 
   function handleSelect(target) {
+    // 通用範本填入有自己的路由（新版，規格書功能 2）
+    if (target === 'template-fill') {
+      navigate('/template-fill')
+      return
+    }
     setStep(target)
   }
 
@@ -91,9 +97,6 @@ export default function HomePage() {
           sourceRows={sourceRows}
           onBack={() => setStep('source-config')}
         />
-      )}
-      {step === 'template-stub' && (
-        <TemplateFillPage onBack={() => setStep('home')} />
       )}
     </div>
   )
